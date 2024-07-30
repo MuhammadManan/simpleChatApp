@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome Page</title>
+</head>
+<body>
+    <h1>Welcome to My Website!</h1>
+    <p>Thank you for visiting.</p>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8080');
+        ws.onopen = (event) => {
+            console.log('Connected to server');
+            ws.send('Hello from client!');
+        };
+
+        ws.onmessage = (event) => {
+            console.log('Received message:', event.data);
+        };
+    </script>
+</body>
+</html>
