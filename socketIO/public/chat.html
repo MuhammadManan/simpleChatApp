@@ -4,13 +4,32 @@
 <script>
     
     const socket = io('http://localhost:5000');
+
+    console.log(socket.io);
+    console.log(socket.io.uri);
+    
     socket.on('connect', (event) => {
         console.log('Connected to server');
-        socket.on('welcome', (data) => {
-            console.log('Received message:', data);
-            socket.emit('message', { message: 'Hello from client!' });
-        });
+        console.log('socket ID ',socket.id);
+
+        setInterval(() => {
+        const startTime = Date.now();
+        socket.emit('pingCheck', startTime);
+      }, 5000); // Check latency every 5 seconds
     });
+
+    socket.on('pongCheck', (startTime) => {
+      console.log('pong is sent to server')
+      const latency = Date.now() - startTime;
+      console.log(`Latency: ${latency} ms`);
+    });
+
+    
+    socket.on('welcome', (data) => {
+        console.log('Received message:', data);
+        socket.emit('message', { message: 'Hello from client!' });
+    });
+
     
 
 </script>

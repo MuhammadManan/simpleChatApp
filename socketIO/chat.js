@@ -17,4 +17,10 @@ io.on('connection', (socket,req) => {
     socket.on('message', (msg) => {
         console.log('message: ' + msg.message);
     }); 
+
+    // Handle custom ping-pong for latency measurement
+    socket.on('pingCheck', (startTime) => {
+        console.log('pong is received from the client');
+        socket.emit('pongCheck', startTime);
+    }); 
 }); 
