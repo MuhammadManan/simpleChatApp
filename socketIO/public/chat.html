@@ -1,35 +1,65 @@
-<h1>Testing for chat.html</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="flex flex-col h-screen bg-gray-100">
+  <!-- Header -->
+  <header class="bg-blue-600 text-white p-4">
+    <h1 class="text-xl font-bold">Chat Application</h1>
+  </header>
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    
+  <!-- Main Chat Area -->
+  <main class="flex-1 p-4 overflow-y-auto" id="chatWindow">
+    <ul id="messages" class="space-y-2"></ul>
+  </main>
+
+  <!-- Input Section -->
+  <footer class="bg-gray-200 p-4">
+    <div class="flex">
+      <input id="messageInput" type="text" class="flex-1 p-2 border rounded" placeholder="Type your message here...">
+      <button id="sendButton" class="bg-blue-600 text-white p-2 rounded ml-2">Send</button>
+    </div>
+  </footer>
+
+  <script>
     const socket = io('http://localhost:5000');
+    let myId;
 
-    console.log(socket.io);
-    console.log(socket.io.uri);
-    
-    socket.on('connect', (event) => {
-        console.log('Connected to server');
-        console.log('socket ID ',socket.id);
-
-        setInterval(() => {
-        const startTime = Date.now();
-        socket.emit('pingCheck', startTime);
-      }, 5000); // Check latency every 5 seconds
+    socket.on('connect', () => {
+      console.log('Connected to server');
+      myId = socket.id;
+      console.log('Socket ID:', myId);
     });
 
-    socket.on('pongCheck', (startTime) => {
-      console.log('pong is sent to server')
-      const latency = Date.now() - startTime;
-      console.log(`Latency: ${latency} ms`);
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const messages = document.getElementById('messages');
+
+    sendButton.addEventListener('click', () => {
+      const message = messageInput.value;
+      if (message.trim()) {
+        socket.emit('newMessage', { id: myId, message });
+        messageInput.value = ''; 
+      }
     });
 
-    
-    socket.on('welcome', (data) => {
-        console.log('Received message:', data);
-        socket.emit('message', { message: 'Hello from client!' });
+    socket.on('messageFromServer', (data) => {
+      appendMessage(data.id === myId ? 'You' : 'Friend', data.message);
     });
 
-    
-
-</script>
+    function appendMessage(sender, message) {
+      const li = document.createElement('li');
+      li.classList.add('p-2', 'rounded', 'shadow');
+      li.classList.add(messages.children.length % 2 === 0 ? 'bg-white' : 'bg-gray-200');
+      li.textContent = `${sender}: ${message}`;
+      messages.appendChild(li);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+</body>
+</html>

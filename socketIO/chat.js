@@ -13,14 +13,7 @@ const io = socketIO(expressServer);
 
 io.on('connection', (socket,req) => {  
     console.log('a user connected');
-    socket.emit('welcome', 'Hello from server');
-    socket.on('message', (msg) => {
-        console.log('message: ' + msg.message);
-    }); 
-
-    // Handle custom ping-pong for latency measurement
-    socket.on('pingCheck', (startTime) => {
-        console.log('pong is received from the client');
-        socket.emit('pongCheck', startTime);
-    }); 
+    socket.on('newMessage', (data) => {     
+        io.emit('messageFromServer', data);
+    });
 }); 
