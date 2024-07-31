@@ -1,0 +1,16 @@
+<h1>Testing for chat.html</h1>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    
+    const socket = io('http://localhost:5000');
+    socket.on('connect', (event) => {
+        console.log('Connected to server');
+        socket.on('welcome', (data) => {
+            console.log('Received message:', data);
+            socket.emit('message', { message: 'Hello from client!' });
+        });
+    });
+    
+
+</script>
