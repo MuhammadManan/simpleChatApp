@@ -63,6 +63,7 @@ body{
     position: relative;
     padding-top: 10px;
     background-color: #37393E;
+    overflow: hidden;
 }
 .chat-panel .curr-room-text{
     color: #fff;
@@ -107,7 +108,7 @@ input {
     list-style-type: none; margin: 0; padding: 0; 
     color: #3B4048;
     max-height: 85%;
-    overflow: scroll;
+    /* overflow: scroll; */
 }
 /* #messages li .user-image{
     width: 50px;

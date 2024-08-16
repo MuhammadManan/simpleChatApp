@@ -28,17 +28,15 @@ socket.on('nsList',(nsData)=>{
     Array.from(document.getElementsByClassName('namespace')).forEach((elem)=>{
         // console.log(elem);
         elem.addEventListener('click',(e)=>{
-            const nsEndpoint = elem.getAttribute('ns');
-            // console.log(`${nsEndpoint} I should go to now`);
-            const clickedNs = nsData.find(row=> row.endpoint === nsEndpoint);
-            // console.log('clickedNs ',clickedNs);
-            const rooms = clickedNs.rooms;
-            // console.log('roomList',rooms);
-            let roomList = document.querySelector('.room-list');
-            roomList.innerHTML = "";
-            rooms.forEach((room)=>{
-                roomList.innerHTML += `<li><span class="glyphicon glyphicon-lock"></span>${room.roomName}</li>`
-            });
+            joinNs(elem,nsData);
         });
     });    
+
+    // open from the last namespace
+    const lastNs = localStorage.getItem('lastNs');
+    // if lastNs is not null, join the lastNs, instead of 0th ns
+    if(!lastNs){
+        //...
+    }
+    joinNs(document.getElementsByClassName('namespace')[0],nsData);
 });
