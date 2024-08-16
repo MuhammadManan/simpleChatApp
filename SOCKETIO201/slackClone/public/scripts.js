@@ -1,5 +1,8 @@
-const userNmae = prompt('Enter your name');
-const password = prompt('Enter your password');
+// const userNmae = prompt('Enter your name');
+// const password = prompt('Enter your password');
+
+const userName = 'test';
+const password = 'test';
 
 const socket = io('http://localhost:9000');
 
