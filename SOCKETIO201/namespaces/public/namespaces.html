@@ -49,7 +49,9 @@
         console.log("Successfully joined the main ns");
     })
 
-    socket.on('welcomeToChatRoom',(data)=>{
+    // socket.emit('newMessageToServer',{text:"I'm connected!"})
+
+    socket.on('WelcomeToChatRoom',(data)=>{
         console.log("Welcome to the main chat room")
     })
 
