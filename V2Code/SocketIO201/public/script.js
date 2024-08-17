@@ -9,10 +9,7 @@ const socket2= io('http://localhost:9000/admin');
 socket.on('joined',(data)=>{
     console.log(data);
 });
-
-socket.on('left',(data)=>{
-    console.log(data);
-});
+ 
     
 socket.on('messageFromServer',({data})=>{
     console.log(data);

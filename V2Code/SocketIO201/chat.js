@@ -15,19 +15,7 @@ io.of('/').on('connection',(socket)=>{
     });
     socket.join('level1'); 
     socket.to('level1').emit('joined',` ${socket.id} says: he has joined level 1!`);
-    // io.of('/').to('level1').emit('joined',` ${socket.id} says: he has joined level 1!`);    
-
-
-    // Handle the disconnection event
-    socket.on('disconnect', () => {
-        console.log('User has left the chat!');
-        
-        // Remove the socket from the room 'level1'
-        socket.leave('level1');
-        
-        // Notify other clients in the room 'level1' that the user has left
-        socket.to('level1').emit('left', `${socket.id} says: he has left level 1!`);
-    });
+    // io.of('/').to('level1').emit('joined',` ${socket.id} says: he has joined level 1!`);   
 });
 
  
