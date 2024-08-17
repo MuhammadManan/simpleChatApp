@@ -1,22 +1,26 @@
 const socket = io('http://localhost:9000'); // the / namespace/endpoint
-const socket2 = io('http://localhost:9000/admin') //the /admin namespace
+
 // console.log(socket);
 console.log(socket.io);
 socket.on('connect',()=>{
     console.log(socket.id)
 })
 
-socket2.on('connect',()=>{
-    console.log(socket2.id)
-})
+socket.on('nsList',(nsData)=>{
+    console.log("The list of namespaces has arrived!");
+    const namespacesDiv = document.querySelector('.namespaces');
+    namespacesDiv.innerHTML = "";
+    nsData.forEach((ns)=>{
+        namespacesDiv.innerHTML += `<div class="namespace" ns=${ns.endpoint}><img src="${ns.img}" /></div>`;
+    });
 
-socket.on('welcome',(msg)=>{
-    console.log(msg)
-})
-socket2.on('welcome',(msg)=>{
-    console.log(msg)
-})
-
+    Array.from(document.getElementsByClassName('namespace')).forEach((elem)=>{
+        elem.addEventListener('click',(e)=>{
+            const nsEndpoint = elem.getAttribute('ns');
+            console.log(`${nsEndpoint} I should join now!`);
+        });
+    });
+});
 
 socket.on('messageFromServer',(dataFromServer)=>{
     console.log(dataFromServer);
@@ -34,12 +38,3 @@ socket.on('messageToClients',(msg)=>{
     document.querySelector('#messages').innerHTML += `<li>${msg.text}</li>`
 })
 
-// socket.on('ping',()=>{
-//     console.log('Ping was recieved from the server.');
-//     console.log(io.protocol)
-// })
-
-// socket.on('pong',(latency)=>{
-//     console.log(latency);
-//     console.log("Pong was sent to the server.")
-// })

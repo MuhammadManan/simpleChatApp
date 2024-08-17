@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
 const socketio = require('socket.io');
-const namespaces = require('./data/namespaces');
+let namespaces = require('./data/namespaces');
 
-console.log(namespaces[0]);
+// console.log(namespaces[0]);
 
 app.use(express.static(__dirname + '/public'));
 
@@ -11,31 +11,23 @@ const expressServer = app.listen(9000, ()=>{
     console.log("Server is listening on port 9000")
 });
 const io = socketio(expressServer);
+
+
 // io.on = io.of('/').on
 io.on('connection',(socket)=>{
-    console.log("Someone connected to the main namespace")
-    socket.emit('messageFromServer',{data:"Welcome to the socketio server"});
-    socket.on('messageToServer',(dataFromClient)=>{
-        console.log(dataFromClient)
-    })
-    socket.on('newMessageToServer',(msg)=>{
-        // console.log(msg)
-        // io.emit('messageToClients',{text:msg.text})
-        io.of('/').emit('messageToClients',{text:msg.text})
-    })
-    // The server can still communicate across namespaces
-    // but on the clientInformation, the socket needs be in THAT namespace
-    // in order to get the events
+     let nsData = namespaces.map((ns)=>{
+        return{
+            img: ns.img,
+            endpoint: ns.endpoint
+        }
+     });
+    // console.log(nsData);
 
-    setTimeout(()=>{
-        io.of('/admin').emit('welcome',"Welcome to the admin channel, from the main channel!")
-    },2000)
-
-
-
+    socket.emit('nsList',nsData);
 })
 
-io.of('/admin').on('connection',(socket)=>{
-    console.log("Someone connected to the admin namespace!")
-    io.of('/admin').emit('welcome',"Welcome to the admin channel!");
-})
+namespaces.forEach((namespace)=>{
+    io.of(namespace.endpoint).on('connection', (socket)=>{
+        console.log(`${socket.id} has joined ${namespace.endpoint}`);
+    });
+});
