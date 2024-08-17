@@ -1,6 +1,7 @@
 const socket = io('http://localhost:9000'); // the / namespace/endpoint
 const socket2 = io('http://localhost:9000/admin') //the /admin namespace
-console.log(socket.io)
+// console.log(socket);
+console.log(socket.io);
 socket.on('connect',()=>{
     console.log(socket.id)
 })
