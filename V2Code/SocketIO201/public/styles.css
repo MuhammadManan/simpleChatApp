@@ -13,3 +13,6 @@ input{
 #message li:nth-child(odd){
     background: #aaa;
 }
+#message-form{
+    margin-top: 20px;
+}
