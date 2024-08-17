@@ -8,24 +8,31 @@ const expressServer = app.listen(9000, ()=>{
     console.log('Server running on port 9000')
 });
 const io = socketio(expressServer);
-io.of('/').on('connection',(socket)=>{
-    console.log('Someone connected to the main namespace')
-    socket.emit('messageFromServer',{data:"Welcome to the socketio server"});
-    socket.on('messageToServer',(dataFromClient)=>{
-        console.log(dataFromClient)
-    })
-    socket.on('newMessageToServer',(msg)=>{
-        // console.log(msg)
-        // io.emit('messageToClients',{text:msg.text})
-        io.of('/').emit('messageToClients',{text:msg.text})
-    })
-    setTimeout(()=>{
-        // socket.send('Welcome to the socketio server!')
-        io.of('/admin').emit('welcome','Welcome to the admin channel from the main namespace!')
-    },2000);
-})
+io.of('/').on('connection',(socket)=>{  
+    socket.emit('messageFromServer',{data:"Welcome to the main page!"});
+    socket.on('messageToServer',({data})=>{
+        console.log(data);
+    });
+    socket.join('level1'); 
+    socket.to('level1').emit('joined',` ${socket.id} says: he has joined level 1!`);
+    // io.of('/').to('level1').emit('joined',` ${socket.id} says: he has joined level 1!`);    
 
-io.of('/admin').on('connection',(socket)=>{
-    console.log('Someone connected to the admin namespace')
-    io.of('/admin').emit('welcome','Welcome to the admin channel!')
+
+    // Handle the disconnection event
+    socket.on('disconnect', () => {
+        console.log('User has left the chat!');
+        
+        // Remove the socket from the room 'level1'
+        socket.leave('level1');
+        
+        // Notify other clients in the room 'level1' that the user has left
+        socket.to('level1').emit('left', `${socket.id} says: he has left level 1!`);
+    });
+});
+
+ 
+
+io.of('/admin').on('connection',(socket)=>{ 
+    console.log('Someone connected to the admin namespace!');
+    io.of('/admin').emit('welcome','Welcome to the admin channel!');
 });

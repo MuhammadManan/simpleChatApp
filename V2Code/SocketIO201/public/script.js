@@ -1,31 +1,27 @@
 const socket = io('http://localhost:9000');
 const socket2= io('http://localhost:9000/admin');
-    // console.log(socket.io);
-    socket.on('connect',()=>{
-        console.log(socket.id)
-    });
+ 
+ socket2.on('welcome',(data)=>{
+    console.log(data);
+});
+ 
 
-    socket2.on('connect',()=>{
-        console.log(socket2.id)
-    });
+socket.on('joined',(data)=>{
+    console.log(data);
+});
 
-    socket2.on('welcome',(dataFromServer)=>{
-        console.log(dataFromServer);
-    });
+socket.on('left',(data)=>{
+    console.log(data);
+});
+    
+socket.on('messageFromServer',({data})=>{
+    console.log(data);
+    socket.emit('messageToServer',{data: "Thank You... from the Client!"})
+});
 
-    socket.on('messageFromServer',(dataFromServer)=>{
-        console.log(dataFromServer);
-        socket.emit('dataToServer',{data: "Data from the Client!"})
-    })
-
-    document.querySelector('#message-form').addEventListener('submit',(event)=>{
-        event.preventDefault();
-        const newMessage = document.querySelector('#user-message').value;
-        socket.emit('newMessageToServer',{text: newMessage});
-        document.querySelector('#user-message').value = '';
-    })
-
-    socket.on('messageToClients',(msg)=>{
-        console.log(msg);
-        document.querySelector('#messages').innerHTML += `<li>${msg.text}</li>`
-    })
+document.querySelector('#message-form').addEventListener('submit',(event)=>{
+    event.preventDefault();
+    const newMessage = document.querySelector('#user-message').value;
+    socket.emit('newMessageToServer',{text: newMessage});
+    document.querySelector('#user-message').value = '';
+});
