@@ -1,7 +1,7 @@
 // Description: This file contains the client side javascript code for the slack application.
 
 const socket = io('http://localhost:9000'); // the / namespace/endpoint
-
+let nsSocket = "";
 
 socket.on('nsList',(nsData)=>{
     console.log("The list of namespaces has arrived!");

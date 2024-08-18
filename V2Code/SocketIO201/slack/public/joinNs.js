@@ -1,5 +1,5 @@
 function joinNS(endpoint){
-    const nsSocket = io(`http://localhost:9000${endpoint}`);
+    nsSocket = io(`http://localhost:9000${endpoint}`);
     nsSocket.on('nsRoomLoad',(nsRooms)=>{
         console.log(nsRooms);
 
@@ -21,18 +21,50 @@ function joinNS(endpoint){
                 console.log("Someone clicked on ", e.target.innerText);
             });
         });
+
+        const topRoom = document.querySelector('.room');
+        const roomName = topRoom.innerText;
+        // console.log(roomName);
+        joinRoom(roomName);
     });
 
     nsSocket.on('messageToClients',(msg)=>{
-        console.log(msg)
-        document.querySelector('#messages').innerHTML += `<li>${msg.text}</li>`
+        // console.log(msg);
+        const newMsg = buildHTML(msg);
+        const messageUl = document.querySelector('#messages');
+        messageUl.innerHTML += newMsg;
+
+        messageUl.scrollTo(0,messageUl.scrollHeight);
     });
 
 
     document.querySelector('.message-form').addEventListener('submit',(event)=>{
         event.preventDefault();
         const newMessage = document.querySelector('#user-message').value;
-        socket.emit('newMessageToServer',{text: newMessage})
+        if(newMessage !== ""){
+            nsSocket.emit('newMessageToServer',{text: newMessage})
+            document.querySelector('#user-message').value = "";
+        }
     });
     
 }
+
+function buildHTML(msg){
+    const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+    let convertedDate = new Date(msg.time).toLocaleTimeString('en-US',options);
+    convertedDate = convertedDate.toLowerCase();
+    const HTML = 
+    `
+    <li>
+         <div class="user-image">
+             <img src="${msg.avator}" />
+         </div>
+         <div class="user-message">
+             <div class="user-name-time">${msg.username}<span> ${convertedDate}</span></div>
+             <div class="message-text">${msg.text}</div>
+         </div>
+     </li>
+     
+     `;
+     return HTML; ; 
+ }
