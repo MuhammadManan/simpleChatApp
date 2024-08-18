@@ -3,7 +3,7 @@ const app = express();
 const socketio = require('socket.io');
 let namespaces = require('./data/namespaces');
 
-// console.log(namespaces[0]);
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -28,7 +28,10 @@ io.on('connection',(socket)=>{
 
 namespaces.forEach((namespace)=>{
     io.of(namespace.endpoint).on('connection', (nsSocket)=>{
-        console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
+        const username = nsSocket.handshake.query.username;
+        const avator = nsSocket.handshake.query.avator;
+        console.log(`${username} has joined ${namespace.endpoint}`);
+
 
         nsSocket.emit('nsRoomLoad', namespace.rooms);
         nsSocket.on('joinRoom', (roomToJoin,numberOfUsersCallback)=>{
@@ -61,10 +64,10 @@ namespaces.forEach((namespace)=>{
             const fullMsg = {
                 text: msg.text,
                 time: Date.now(),
-                username: "rbhatia",
-                avator: 'https://via.placeholder.com/30'
+                username: username,
+                avator: avator
             };
-            // console.log(fullMsg);
+            console.log(fullMsg);
             console.log("New message nsSocket Rooms: ",nsSocket.rooms);
             const roomTitle = Array.from(nsSocket.rooms)[1];
             const nsRoom = namespace.rooms.find((room)=>{

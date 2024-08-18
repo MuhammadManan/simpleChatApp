@@ -64,7 +64,7 @@ function buildHTML(msg){
     `
     <li>
          <div class="user-image">
-             <img src="${msg.avator}" />
+             <img id="avator" src="${msg.avator}" />
          </div>
          <div class="user-message">
              <div class="user-name-time">${msg.username}<span> ${convertedDate}</span></div>

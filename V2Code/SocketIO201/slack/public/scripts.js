@@ -1,6 +1,12 @@
 // Description: This file contains the client side javascript code for the slack application.
-
-const socket = io('http://localhost:9000'); // the / namespace/endpoint
+const username = prompt("What is your username?");
+const avator = `https://avatar.iran.liara.run/public/${getRandomNumber()}`;
+const socket = io('http://localhost:9000',{
+    query:{
+        username : username,
+        avator: avator
+    }
+}); // the / namespace/endpoint
 let nsSocket = "";
 
 socket.on('nsList',(nsData)=>{
@@ -24,3 +30,9 @@ socket.on('nsList',(nsData)=>{
 });
 
 
+function getRandomNumber() {
+    return Math.floor(Math.random() * 50) + 1;
+}
+
+const randomNumber = getRandomNumber();
+console.log(randomNumber);
