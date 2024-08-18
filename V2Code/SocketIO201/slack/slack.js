@@ -30,28 +30,30 @@ namespaces.forEach((namespace)=>{
     io.of(namespace.endpoint).on('connection', (nsSocket)=>{
         console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
 
-        nsSocket.emit('nsRoomLoad', namespaces[0].rooms);
-        nsSocket.on('joinRoom', async (roomToJoin,numberOfUsersCallback)=>{
+        nsSocket.emit('nsRoomLoad', namespace.rooms);
+        nsSocket.on('joinRoom', (roomToJoin,numberOfUsersCallback)=>{
             // console.log(roomToJoin);
-            nsSocket.join(roomToJoin);
-            // const clients = await io.of('/wiki').in(roomToJoin).fetchSockets();
-            // console.log(clients.length);
-            // numberOfUsersCallback(clients.length);
-
-
-            // send history to the client who just joined
-            const nsRoom = namespaces[0].rooms.find((room)=>{
-                return room.roomTitle === roomToJoin;
-            });
-            console.log("nsRoom",nsRoom);
-            nsSocket.emit('historyCatchUp',nsRoom.history);
-
-            // send number of users in the room to all clients
-            io.of('/wiki').in(roomToJoin).fetchSockets().then((clients)=>{
-                console.log(`There are ${clients.length} in this room`);
-                io.of('/wiki').in(roomToJoin).emit('updateMembers',clients.length);
-            })
-
+            const roomToLeave = Array.from(nsSocket.rooms)[1];
+            // console.log('Room to Leave: ',roomToLeave);
+            if (roomToLeave) {
+                // Leave the room
+                nsSocket.leave(roomToLeave);
+                updateUsersInRoom(namespace,roomToLeave);
+                console.log(`Room: ${roomToLeave} has been left`);
+            }
+            
+            if(roomToJoin){
+                nsSocket.join(roomToJoin);
+                // send history to the client who just joined
+                const nsRoom = namespace.rooms.find((room)=>{
+                    return room.roomTitle === roomToJoin;
+                });
+                // console.log("nsRoom",nsRoom);
+                nsSocket.emit('historyCatchUp',nsRoom.history);
+                // send number of users in the room to all clients
+                updateUsersInRoom(namespace,roomToJoin);
+                console.log(`Room: ${roomToJoin} has been joined`);
+            }
 
         });
 
@@ -63,15 +65,22 @@ namespaces.forEach((namespace)=>{
                 avator: 'https://via.placeholder.com/30'
             };
             // console.log(fullMsg);
-            // console.log(nsSocket.rooms);
+            console.log("New message nsSocket Rooms: ",nsSocket.rooms);
             const roomTitle = Array.from(nsSocket.rooms)[1];
-            const nsRoom = namespaces[0].rooms.find((room)=>{
+            const nsRoom = namespace.rooms.find((room)=>{
                 return room.roomTitle === roomTitle;
             });
             nsRoom.addMessage(fullMsg);
-            console.log('Nechy wala nsRoom: ',nsRoom);
+            // console.log('Nechy wala nsRoom: ',nsRoom);
             // nsRoom.clearHistory();
-            io.of('/wiki').to(roomTitle).emit('messageToClients',fullMsg);
+            io.of(namespace.endpoint).to(roomTitle).emit('messageToClients',fullMsg);
         });
     });
 });
+
+function  updateUsersInRoom(namespace,roomToJoin){
+    io.of(namespace.endpoint).in(roomToJoin).fetchSockets().then((clients)=>{
+        console.log(`There are ${clients.length} in this room`);
+        io.of(namespace.endpoint).in(roomToJoin).emit('updateMembers',clients.length);
+    });
+}

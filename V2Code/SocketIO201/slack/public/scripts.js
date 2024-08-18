@@ -5,6 +5,7 @@ let nsSocket = "";
 
 socket.on('nsList',(nsData)=>{
     console.log("The list of namespaces has arrived!");
+    console.log(nsData);
     const namespacesDiv = document.querySelector('.namespaces');
     namespacesDiv.innerHTML = "";
     nsData.forEach((ns)=>{
@@ -14,7 +15,8 @@ socket.on('nsList',(nsData)=>{
     Array.from(document.getElementsByClassName('namespace')).forEach((elem)=>{
         elem.addEventListener('click',(e)=>{
             const nsEndpoint = elem.getAttribute('ns');
-            console.log(`${nsEndpoint} I should join now!`);
+            // console.log(`${nsEndpoint} I should join now!`);
+            joinNS(nsEndpoint);
         });
     });
 
