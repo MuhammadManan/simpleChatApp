@@ -1,3 +1,5 @@
+// Description: This file contains the client side javascript code for the slack application.
+
 const socket = io('http://localhost:9000'); // the / namespace/endpoint
 
 // console.log(socket);
@@ -18,6 +20,30 @@ socket.on('nsList',(nsData)=>{
         elem.addEventListener('click',(e)=>{
             const nsEndpoint = elem.getAttribute('ns');
             console.log(`${nsEndpoint} I should join now!`);
+        });
+    });
+
+    const nsSocket = io('http://localhost:9000/wiki');
+    nsSocket.on('nsRoomLoad',(nsRooms)=>{
+        console.log(nsRooms);
+
+        const roomList = document.querySelector('.room-list');
+        roomList.innerHTML = "";
+        nsRooms.forEach((room)=>{
+            let glyph;
+            if(room.privateRoom){
+                glyph = 'lock';
+            }  else{
+                glyph = 'globe';
+            }
+            roomList.innerHTML += `<li class="room"><span class="glyphicon glyphicon-${glyph}"></span>${room.roomTitle}</li>`;
+        });
+
+        const roomNodes = document.getElementsByClassName('room');
+        Array.from(roomNodes).forEach((elem)=>{
+            elem.addEventListener('click',(e)=>{
+                console.log("Someone clicked on ", e.target.innerText);
+            });
         });
     });
 });

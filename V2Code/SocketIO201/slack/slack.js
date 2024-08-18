@@ -27,7 +27,9 @@ io.on('connection',(socket)=>{
 })
 
 namespaces.forEach((namespace)=>{
-    io.of(namespace.endpoint).on('connection', (socket)=>{
-        console.log(`${socket.id} has joined ${namespace.endpoint}`);
+    io.of(namespace.endpoint).on('connection', (nsSocket)=>{
+        console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
+
+        nsSocket.emit('nsRoomLoad', namespaces[0].rooms);
     });
 });
