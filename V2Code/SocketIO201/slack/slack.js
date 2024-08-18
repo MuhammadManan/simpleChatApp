@@ -1,89 +1,102 @@
 const express = require('express');
 const app = express();
 const socketio = require('socket.io');
-let namespaces = require('./data/namespaces');
+let namespaces = require('./data/namespaces'); // Importing namespaces data
 
-
-
+// Serve static files from the public directory
 app.use(express.static(__dirname + '/public'));
 
+// Start the Express server on port 9000
 const expressServer = app.listen(9000, ()=>{
-    console.log("Server is listening on port 9000")
+    console.log("Server is listening on port 9000");
 });
-const io = socketio(expressServer);
 
+const io = socketio(expressServer); // Initialize Socket.IO with the Express server
 
-// io.on = io.of('/').on
-io.on('connection',(socket)=>{
-     let nsData = namespaces.map((ns)=>{
-        return{
-            img: ns.img,
-            endpoint: ns.endpoint
-        }
-     });
-    // console.log(nsData);
+// Handle connection to the main namespace ('/')
+io.on('connection', (socket) => {
+    // Prepare the list of namespaces to send to the client
+    let nsData = namespaces.map((ns) => {
+        return {
+            img: ns.img, // Namespace image
+            endpoint: ns.endpoint // Namespace endpoint
+        };
+    });
 
-    socket.emit('nsList',nsData);
-})
+    // Send the list of namespaces to the client
+    socket.emit('nsList', nsData);
+});
 
-namespaces.forEach((namespace)=>{
-    io.of(namespace.endpoint).on('connection', (nsSocket)=>{
+// Loop through each namespace and set up connection handlers
+namespaces.forEach((namespace) => {
+    io.of(namespace.endpoint).on('connection', (nsSocket) => {
+        // Get the username and avatar from the client's connection handshake query
         const username = nsSocket.handshake.query.username;
         const avator = nsSocket.handshake.query.avator;
         console.log(`${username} has joined ${namespace.endpoint}`);
 
-
+        // Send the list of rooms in this namespace to the client
         nsSocket.emit('nsRoomLoad', namespace.rooms);
-        nsSocket.on('joinRoom', (roomToJoin,numberOfUsersCallback)=>{
-            // console.log(roomToJoin);
-            const roomToLeave = Array.from(nsSocket.rooms)[1];
-            // console.log('Room to Leave: ',roomToLeave);
+
+        // Handle the client joining a specific room
+        nsSocket.on('joinRoom', (roomToJoin, numberOfUsersCallback) => {
+            const roomToLeave = Array.from(nsSocket.rooms)[1]; // Determine the room to leave (if any)
+            
             if (roomToLeave) {
-                // Leave the room
+                // Leave the current room
                 nsSocket.leave(roomToLeave);
-                updateUsersInRoom(namespace,roomToLeave);
+                updateUsersInRoom(namespace, roomToLeave); // Update user count in the room that was left
                 console.log(`Room: ${roomToLeave} has been left`);
             }
             
-            if(roomToJoin){
+            if (roomToJoin) {
+                // Join the new room
                 nsSocket.join(roomToJoin);
-                // send history to the client who just joined
-                const nsRoom = namespace.rooms.find((room)=>{
+
+                // Find the room object to retrieve its history
+                const nsRoom = namespace.rooms.find((room) => {
                     return room.roomTitle === roomToJoin;
                 });
-                // console.log("nsRoom",nsRoom);
-                nsSocket.emit('historyCatchUp',nsRoom.history);
-                // send number of users in the room to all clients
-                updateUsersInRoom(namespace,roomToJoin);
+
+                // Send the chat history of the room to the client
+                nsSocket.emit('historyCatchUp', nsRoom.history);
+
+                // Update the user count in the room that was joined
+                updateUsersInRoom(namespace, roomToJoin);
                 console.log(`Room: ${roomToJoin} has been joined`);
             }
-
         });
 
-        nsSocket.on('newMessageToServer',(msg)=>{
+        // Handle a new message from the client
+        nsSocket.on('newMessageToServer', (msg) => {
             const fullMsg = {
-                text: msg.text,
-                time: Date.now(),
-                username: username,
-                avator: avator
+                text: msg.text, // Message text
+                time: Date.now(), // Timestamp
+                username: username, // Username from handshake
+                avator: avator // Avatar from handshake
             };
             console.log(fullMsg);
-            console.log("New message nsSocket Rooms: ",nsSocket.rooms);
+
+            // Determine the room the client is currently in
             const roomTitle = Array.from(nsSocket.rooms)[1];
-            const nsRoom = namespace.rooms.find((room)=>{
+            const nsRoom = namespace.rooms.find((room) => {
                 return room.roomTitle === roomTitle;
             });
+
+            // Add the new message to the room's history
             nsRoom.addMessage(fullMsg);
-            // console.log('Nechy wala nsRoom: ',nsRoom);
-            // nsRoom.clearHistory();
-            io.of(namespace.endpoint).to(roomTitle).emit('messageToClients',fullMsg);
+
+            // Broadcast the new message to all clients in the room
+            io.of(namespace.endpoint).to(roomTitle).emit('messageToClients', fullMsg);
         });
     });
 });
 
-function  updateUsersInRoom(namespace,roomToJoin){
-    io.of(namespace.endpoint).in(roomToJoin).fetchSockets().then((clients)=>{
+// Function to update the number of users in a room and notify all clients in that room
+function updateUsersInRoom(namespace, roomToJoin) {
+    io.of(namespace.endpoint).in(roomToJoin).fetchSockets().then((clients) => {
         console.log(`There are ${clients.length} in this room`);
-        io.of(namespace.endpoint).in(roomToJoin).emit('updateMembers',clients.length);
+        // Emit an update to all clients in the room with the new user count
+        io.of(namespace.endpoint).in(roomToJoin).emit('updateMembers', clients.length);
     });
 }
