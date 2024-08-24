@@ -1,5 +1,5 @@
 const init = () => {
-    console.log('init');
+    console.log(orbs);
     draw();
 }
 
@@ -8,10 +8,10 @@ player.locY = Math.floor(500 * Math.random() + 50);
 
 
 const draw = () => {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-
     context.setTransform(1, 0, 0, 1, 0, 0);
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    
     const camX = -player.locX + canvas.width/2;
     const camY = -player.locY + canvas.height/2;
     context.translate(camX, camY);
@@ -19,11 +19,19 @@ const draw = () => {
     context.beginPath();
     context.fillStyle = "rgb(255, 0, 0)";
     context.arc(player.locX, player.locY, 10, 0, Math.PI * 2);
-    context.arc(200, 200, 10, 0, Math.PI * 2);
+    // context.arc(200, 200, 10, 0, Math.PI * 2);
     context.fill();
     context.lineWidth = 2;
     context.strokeStyle = "rgb(0, 255, 0)";
     context.stroke();
+
+    orbs.forEach((orb) => {
+        context.beginPath();
+        context.fillStyle = orb.color;
+        context.arc(orb.locX, orb.locY, orb.radius, 0, Math.PI * 2);
+        context.fill();
+    });
+
     window.requestAnimationFrame(draw);
 };
 
