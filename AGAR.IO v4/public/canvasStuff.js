@@ -1,7 +1,3 @@
-const init = () => {
-    console.log(orbs);
-    draw();
-}
 
 player.locX = Math.floor(500 * Math.random() + 50);
 player.locY = Math.floor(500 * Math.random() + 50);

@@ -17,19 +17,22 @@ const settings = {
     worldHeight: 500,
     defaultGenericOrbSize : 5
 };
+const players = [];
 
 initGame();
 // console.log(orbs);
 
 io.on('connect', (socket) => {
     // console.log('socket connected');
-    let playerName = 'Rob';
-    const playerConfig = new PlayerConfig(settings);
-    const playerData = new PlayerData(playerName, settings);
-    const player = new Player(socket.id, playerConfig, playerData);
-
-    socket.emit('init', {
-        orbs
+    socket.on('init', (playerObj, ackCallback) => {
+        // console.log(data);
+        const playerName = playerObj.playerName;
+        const playerConfig = new PlayerConfig(settings);
+        const playerData = new PlayerData(playerName, settings);
+        const player = new Player(socket.id, playerConfig, playerData);
+        players.push(player);
+    
+        ackCallback(orbs);
     });
 });
 
