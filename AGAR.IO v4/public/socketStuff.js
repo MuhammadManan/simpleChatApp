@@ -14,6 +14,7 @@ const init = async() => {
     }
 }
 
-socket.on('tick', (playerObj) => {
-    console.log(playerObj); 
+socket.on('tick', (playersArray) => {
+    console.log(playersArray); 
+    players = playersArray;
 });
