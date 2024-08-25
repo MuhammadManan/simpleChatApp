@@ -14,7 +14,6 @@ const init = async() => {
     }
 }
 
-socket.on('initReturn', (initData) => {
-    console.log(initData);
-    orbs = initData.orbs;
+socket.on('tick', (playerObj) => {
+    console.log(playerObj); 
 });
