@@ -1,0 +1,13 @@
+const os = require('os');
+const cpus = os.cpus();
+const freeMem = os.freemem();
+const totlaMem = os.totalmem();
+const usedMem = totlaMem - freeMem;
+const memUsage = Math.floor(usedMem / totlaMem * 100)/100;
+const osType = os.type();
+const upTime = os.uptime();
+const cpuModel = cpus[0].model;
+const numCores = cpus.length;
+const cpuSpeed = cpus[0].speed;
+console.log(osType);
+// console.log(os.userInfo());
