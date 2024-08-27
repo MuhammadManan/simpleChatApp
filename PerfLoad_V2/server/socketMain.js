@@ -1,5 +1,5 @@
 function socketMain(io, socket){
-    console.log("Someone Called Me, I'm socketMain");
+    console.log("A socket connected", socket.id);
 }
 
 module.exports = socketMain;

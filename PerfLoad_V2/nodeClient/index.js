@@ -1,31 +1,38 @@
 const os = require('os');
-const cpus = os.cpus();
+const io = require('socket.io-client');
+const socket = io('http://localhost:8181');
+
+socket.on('connect', () => {
+    console.log("I connected to the socket server... hooray!"); 
+});
+
 
 function performanceData() {
     return new Promise(async (resolve, reject) => {
         try{
+            const cpus = os.cpus();
             const freeMem = os.freemem();
-        const totlaMem = os.totalmem();
-        const usedMem = totlaMem - freeMem;
-        const memUsage = Math.floor(usedMem / totlaMem * 100)/100;
-        const osType = os.type();
-        const upTime = os.uptime();
-        const cpuModel = cpus[0].model;
-        const numCores = cpus.length;
-        const cpuSpeed = cpus[0].speed;
-        const cpuLoad = await getCpuLoad();
-        resolve({
-            freeMem,
-            totlaMem,
-            usedMem,
-            memUsage,
-            osType,
-            upTime,
-            cpuModel,
-            numCores,
-            cpuSpeed,
-            cpuLoad
-        });
+            const totlaMem = os.totalmem();
+            const usedMem = totlaMem - freeMem;
+            const memUsage = Math.floor(usedMem / totlaMem * 100)/100;
+            const osType = os.type();
+            const upTime = os.uptime();
+            const cpuModel = cpus[0].model;
+            const numCores = cpus.length;
+            const cpuSpeed = cpus[0].speed;
+            const cpuLoad = await getCpuLoad();
+            resolve({
+                freeMem,
+                totlaMem,
+                usedMem,
+                memUsage,
+                osType,
+                upTime,
+                cpuModel,
+                numCores,
+                cpuSpeed,
+                cpuLoad
+            });
         } catch(e){
             reject("Rejected promise from Performance Data " + e);
         }
