@@ -5,7 +5,8 @@ const socket = io('http://127.0.0.1:8181');
 socket.on('connect', () => {
     // console.log("I connected to the socket server... hooray!"); 
     const nI = os.networkInterfaces();
-    let macA;
+    // console.log("network interfaces", nI);
+     let macA;
     // loop through all the nI for this machine and find a non-internal one
     for(let key in nI){
         if(!nI[key][0].internal){
@@ -17,11 +18,20 @@ socket.on('connect', () => {
     // client auth with single key value
     socket.emit('clientAuth', '5t78yu9girekjaht32i3');
 
+    performanceData().then((allPerformanceData) => {
+        allPerformanceData.macA = macA;
+        console.log(allPerformanceData);
+        socket.emit('initprefData', allPerformanceData);
+    });
+
     let perfDataInterval = setInterval(() => {
         performanceData().then((allPerformanceData) => {
-            // allPerformanceData.macA = macA;
+             console.log(allPerformanceData);
             socket.emit('perfData', allPerformanceData);
         });
+    }, 3000);
+    socket.on('disconnect', () => {
+        clearInterval(perfDataInterval);
     });
 });
 
@@ -93,9 +103,3 @@ function getCpuLoad(){
         }
     });
 }
-
-performanceData().then((allData) => {
-    console.log(allData);
-}).catch((e) => {
-    console.log(e);
-});

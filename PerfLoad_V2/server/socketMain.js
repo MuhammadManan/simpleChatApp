@@ -1,5 +1,12 @@
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://127.0.0.1/perfData', { useNewUrlParser: true });
+
+const Machine = require('./models/Machine');
+
 function socketMain(io, socket){
     // console.log("A socket connected", socket.id);
+
+    let macA;
 
     socket.on('clientAuth', (key) => {
         if(key === '5t78yu9girekjaht32i3'){
@@ -18,6 +25,13 @@ function socketMain(io, socket){
             socket.disconnect(true);
         }
     });
+
+    socket.on('initprefData', (data) => {
+        console.log(data);
+        // const newMachine = new Machine(data);
+        // await newMachine.save();
+        // console.log(await Machine.find({}));
+    }) ;
 
     socket.on('perfData', (data) => {
         console.log(data);
