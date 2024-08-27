@@ -1,9 +1,28 @@
 const os = require('os');
 const io = require('socket.io-client');
-const socket = io('http://localhost:8181');
+const socket = io('http://127.0.0.1:8181');
 
 socket.on('connect', () => {
-    console.log("I connected to the socket server... hooray!"); 
+    // console.log("I connected to the socket server... hooray!"); 
+    const nI = os.networkInterfaces();
+    let macA;
+    // loop through all the nI for this machine and find a non-internal one
+    for(let key in nI){
+        if(!nI[key][0].internal){
+            macA = nI[key][0].mac;
+            break;
+        }
+    }
+
+    // client auth with single key value
+    socket.emit('clientAuth', '5t78yu9girekjaht32i3');
+
+    let perfDataInterval = setInterval(() => {
+        performanceData().then((allPerformanceData) => {
+            // allPerformanceData.macA = macA;
+            socket.emit('perfData', allPerformanceData);
+        });
+    });
 });
 
 
