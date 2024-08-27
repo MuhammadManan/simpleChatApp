@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://127.0.0.1/perfData', { useNewUrlParser: true });
+mongoose.connect('mongodb://127.0.0.1/perfData');
 
 const Machine = require('./models/Machine');
 
@@ -26,17 +26,41 @@ function socketMain(io, socket){
         }
     });
 
-    socket.on('initprefData', (data) => {
+    socket.on('initprefData', async (data) => {
         console.log(data);
-        // const newMachine = new Machine(data);
-        // await newMachine.save();
-        // console.log(await Machine.find({}));
-    }) ;
+        macA = data.macA;
+        try {
+            const mongooseResponse = await checkAndAdd(data);
+            console.log(mongooseResponse);
+        } catch (err) {
+            console.error("Error in checkAndAdd:", err);
+        }
+    });
 
     socket.on('perfData', (data) => {
         console.log(data);
         // io.emit('data', data);
     });
 }
+
+async function checkAndAdd(data) {
+    try {
+        const doc = await Machine.findOne({ macA: data.macA });
+        if (doc === null) {
+            // The record is not in the db, so add it
+            let newMachine = new Machine(data);
+            await newMachine.save();
+            return 'added';
+        } else {
+            // The record is in the db, so don't add it
+            return 'found';
+        }
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
+
 
 module.exports = socketMain;
